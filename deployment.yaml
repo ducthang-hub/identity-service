@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: identity-deployment
+  labels:
+    group: identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      label: identity-service-label
+  template:
+    metadata:
+      labels:
+        label: identity-service-label
+    spec:
+      containers:
+        - name: identity-service
+          image: dducthang/identity-service:v1.5
+          imagePullPolicy: Always
+          volumeMounts: 
+            - mountPath: /app/Text
+              name: text-volume
+        - image
+      volumes:
+        - name: text-volume
+          persistentVolumeClaim: 
+            claimName: identity-pvc

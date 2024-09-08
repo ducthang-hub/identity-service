@@ -1,0 +1,30 @@
+version: 'v1.0'
+
+services:
+  identityservice:
+    image: dducthang/identity-service:v1.4
+    build:
+      context: ./
+      dockerfile: Dockerfile.IdentityServer
+    env_file: ./.env
+    ports:
+      - 7225:443
+      - 5090:80
+    depends_on:
+      - database
+    volumes:
+      - text:/app/Text
+
+  database:
+    image: dducthang/identity-database:v1.0
+    build:
+      context: ./
+      dockerfile: Dockerfile.Database
+    env_file: ./.env
+    ports:
+      - 7228:5432
+    volumes:
+      - ../docker-mount/pgdata:/var/lib/postgresql/data # Mount host directory as a volume
+
+volumes:
+  text:

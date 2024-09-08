@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+  labels:
+    group: identity
+spec:
+  selector:
+    label: identity-service-label
+  ports:
+    - protocol: 'TCP'
+      port: 7225
+      targetPort: 80
+  type: LoadBalancer
