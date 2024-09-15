@@ -109,6 +109,7 @@ namespace IdentityServer.Extensions
         public void DatabaseConfiguration()
         {
             var connectionString = _config["Database:ConnectionString"];
+            Console.WriteLine($"Connection-String: {connectionString}");
             _services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString, o =>
             {
                 o.EnableRetryOnFailure();

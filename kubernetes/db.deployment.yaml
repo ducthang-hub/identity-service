@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-db-deployment
+spec:
+  selector:
+    matchLabels:
+      label: identity-db
+  template:
+    metadata:
+      labels:
+        label: identity-db
+    spec:
+      containers:
+        - name: identity-db
+          image: dducthang/identity-database:v1.0
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: db-volume
+              mountPath: /pgdata
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName:  identity-db-pvc

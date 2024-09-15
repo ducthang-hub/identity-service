@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: identity-deployment
+  labels:
+    group: identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      label: identity-service-label
+  template:
+    metadata:
+      labels:
+        label: identity-service-label
+    spec:
+      containers:
+        - name: identity-service
+          image: dducthang/identity-service:v1.2k
+          imagePullPolicy: Always
+          env:
+            - name: Application__UrlHttps
+              valueFrom:
+                configMapKeyRef:
+                  name: identity-config
+                  key: url-https
+            - name: Application__UrlHttp
+              valueFrom:
+                configMapKeyRef:
+                  name: identity-config
+                  key: url-http
+            - name: Database__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: identity-db-secret
+                  key: connection-string
+          volumeMounts: 
+            - mountPath: /app/Text
+              name: text-volume
+          
+      volumes:
+        - name: text-volume
+          persistentVolumeClaim: 
+            claimName: identity-pvc

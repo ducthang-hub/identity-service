@@ -126,11 +126,11 @@ namespace IdentityServer.Controllers
                 {
                     return NotFound("User not found");
                 }
-
-                var origin = _configuration["Application:UrlHttps"];
-
-                Console.WriteLine($"{funcName} client origin {origin} ");
-
+                
+                var origin = request.Https ? _configuration["Application:UrlHttps"] : _configuration["Application:UrlHttp"];
+                
+                Console.WriteLine($"{funcName} client origin {origin}");
+                
                 var tokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest
                 {
                     Address = $"{origin}/connect/token",
@@ -140,8 +140,12 @@ namespace IdentityServer.Controllers
                     UserName = request.UserName,
                     Password = request.Password,
                 }, cancellationToken: cancellationToken);
-
-                Console.WriteLine($"{funcName} response {JsonConvert.SerializeObject(tokenResponse)}");
+                
+                if (!string.IsNullOrEmpty(tokenResponse.Error))
+                {
+                    Console.WriteLine($"{funcName} Token Response Error: {tokenResponse.Error}");
+                    return BadRequest($"ErrorDescription: {tokenResponse.ErrorDescription}\nErrorType: {tokenResponse.ErrorType.ToString()}\nRawJson: {tokenResponse.Raw}");
+                }
                 
                 if (tokenResponse.HttpStatusCode != HttpStatusCode.OK) return BadRequest(tokenResponse);
                 var output = new TokenDto

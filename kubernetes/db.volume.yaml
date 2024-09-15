@@ -11,4 +11,4 @@ spec:
   storageClassName: standard
   hostPath:
     type: DirectoryOrCreate
-    path: /pgdata
+    path: /var/lib/postgresql/data
