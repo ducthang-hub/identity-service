@@ -11,6 +11,6 @@ namespace IdentityServer.Models.DomainClasses
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public List<ApiScopeResource> ApiScopeResources { get; set; }
-        public List<ClientScope> ClientScopes { set; get; }
+        public List<ClientApiScope> ClientApiScopes { set; get; }
     }
 }

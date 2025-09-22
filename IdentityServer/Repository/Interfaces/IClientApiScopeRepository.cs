@@ -2,7 +2,7 @@
 
 namespace IdentityServer.Repository.Interfaces
 {
-    public interface IClientScopeRepository : IGenericRepository<ClientScope>
+    public interface IClientApiScopeRepository : IGenericRepository<ClientApiScope>
     {
     }
 }

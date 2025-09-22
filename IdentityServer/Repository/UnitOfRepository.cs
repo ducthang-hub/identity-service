@@ -12,9 +12,9 @@ namespace IdentityServer.Repository
         {
             _context = context;
             Client = new ClientRepository(context);
-            ClientGrantType = new ClientGrantTypeRepository(context);
-            ClientScope = new ClientScopeRepository(context);
-            ClientSecret = new ClientSecretRepository(context);
+            ClientApiScope = new ClientApiScopeRepository(context);
+            // ClientGrantType = new ClientGrantTypeRepository(context);
+            // ClientSecret = new ClientSecretRepository(context);
             ApiResource = new ApiResourceRepository(context);
             ApiScope = new ApiScopeRepository(context);
             ApiScopeResource = new ApiScopeResourceRepository(context);
@@ -22,12 +22,12 @@ namespace IdentityServer.Repository
         }
 
         public IClientRepository Client {get;}
-        public IClientGrantTypeRepository ClientGrantType {get;}
-        public IClientScopeRepository ClientScope {get;}
+        public IClientApiScopeRepository ClientApiScope {get;}
+        // public IClientGrantTypeRepository ClientGrantType {get;}
+        // public IClientSecretRepository ClientSecret { get; }
         public IApiResourceRepository ApiResource {get;}
         public IApiScopeRepository ApiScope {get;}
         public IApiScopeResourceRepository ApiScopeResource {get;}
-        public IClientSecretRepository ClientSecret { get; }
         public IUserRepository User { get; set; }
 
         public void SaveChanges()

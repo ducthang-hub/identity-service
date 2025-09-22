@@ -1,5 +1,4 @@
 ﻿using IdentityServer.Models.Configurations;
-using IdentityServer.Models.Context.Migrations;
 using IdentityServer.Models.DomainClasses;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,13 +18,14 @@ namespace IdentityServer.Models.Context
         }
 
         public DbSet<Client> Clients { get; set; }
-        public DbSet<ClientGrantType> ClientGrantTypes { get; set; }
-        public DbSet<ClientScope> ClientScopes { get; set; }
-        public DbSet<ClientSecret> ClientSecrets { get; set; }
+        // public DbSet<ClientGrantType> ClientGrantTypes { get; set; }
+        public DbSet<ClientApiScope> ClientApiScopes { get; set; }
+        // public DbSet<ClientSecret> ClientSecrets { get; set; }
         public DbSet<ApiResource> ApiResources { get; set; }
         public DbSet<ApiScope> ApiScopes { get; set; }
         public DbSet<ApiScopeResource> ApiScopeResources { get; set; }
         public DbSet<User> Users { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,9 +34,9 @@ namespace IdentityServer.Models.Context
                 .ApplyConfiguration(new ApiScopeConfiguration())
                 .ApplyConfiguration(new ApiScopeResourceConfiguration())
                 .ApplyConfiguration(new ClientConfiguration())
-                .ApplyConfiguration(new ClientGrantTypeConfiguration())
-                .ApplyConfiguration(new ClientScopeConfiguration())
-                .ApplyConfiguration(new ClientSecretConfiguration())
+                .ApplyConfiguration(new ClientApiScopeConfiguration())
+                // .ApplyConfiguration(new ClientGrantTypeConfiguration())
+                // .ApplyConfiguration(new ClientSecretConfiguration())
                 .ApplyConfiguration(new UserConfiguration());
         }
     }

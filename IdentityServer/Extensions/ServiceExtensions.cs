@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using static System.Net.WebRequestMethods;
 
 namespace IdentityServer.Extensions
@@ -109,8 +110,10 @@ namespace IdentityServer.Extensions
         public void DatabaseConfiguration()
         {
             var connectionString = _config["Database:ConnectionString"];
-            Console.WriteLine($"Connection-String: {connectionString}");
-            _services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString, o =>
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.EnableDynamicJson();
+            var dataSource = dataSourceBuilder.Build();
+            _services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(dataSource, o =>
             {
                 o.EnableRetryOnFailure();
             }));

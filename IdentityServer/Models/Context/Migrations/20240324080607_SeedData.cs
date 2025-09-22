@@ -15,8 +15,7 @@ namespace IdentityServer.Models.Context.Migrations
                 columns: new[] { "Index", "Name", "Secret" },
                 values: new object[,]
                 {
-                    { new Guid("67756a77-a691-4597-91f5-573e2db344dc"), "student-api-resource", new Guid("9070e5fe-db28-4d9a-b19b-31a77592be20") },
-                    { new Guid("adffadc0-b2a8-4bf3-9203-8d6251d36092"), "teacher-api-resource", new Guid("15897cd0-1ae9-4c93-b847-ea99af6d12a3") }
+                    { new Guid("67756a77-a691-4597-91f5-573e2db344dc"), "web.api", new Guid("9070e5fe-db28-4d9a-b19b-31a77592be20") },
                 });
 
             migrationBuilder.InsertData(
@@ -25,8 +24,7 @@ namespace IdentityServer.Models.Context.Migrations
                 columns: new[] { "Index", "DisplayName", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("4c4da98c-cec2-4dd6-920e-b5bc812189bc"), "Teacher Api Scope", "teacher-scope" },
-                    { new Guid("d45fffbd-4e4b-4005-b00c-cad3e63c02cb"), "Student Api Scope", "student-scope" },
+                    { new Guid("d45fffbd-4e4b-4005-b00c-cad3e63c02cb"), "Web App Resoure", "web.scope" },
                     { new Guid("d12a09e1-781a-4cfb-93e5-5cc5bc0ae926"), "Offline Access", "offline_access" }
                 });
 
@@ -36,8 +34,7 @@ namespace IdentityServer.Models.Context.Migrations
                 columns: new[] { "Index", "ClientId" },
                 values: new object[,]
                 {
-                    { new Guid("79fc80be-e2ee-495d-b1b7-c59d93c26833"), "ewb-teacher" },
-                    { new Guid("c822068a-2b09-47d6-87f9-5fae675919bb"), "ewb-student-web" }
+                    { new Guid("c822068a-2b09-47d6-87f9-5fae675919bb"), "webapp" }
                 });
 
             migrationBuilder.InsertData(

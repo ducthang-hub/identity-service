@@ -3,14 +3,14 @@ version: 'v1.0'
 services:
   identityservice:
     # image: dducthang/identity-service:v1.4
-    image: dducthang/test-is:v1.4
+    image: dducthang/is:v1.5
     build:
       context: ../
       dockerfile: docker/Dockerfile.IdentityService
     env_file: ./.env
     ports:
-      - 7225:443
-      - 5090:80
+      - 9002:443
+      - 5002:80
     depends_on:
       - database
     volumes:

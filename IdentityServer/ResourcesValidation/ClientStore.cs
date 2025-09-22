@@ -2,6 +2,7 @@
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.EntityFrameworkCore;
+using Client = IdentityServer4.Models.Client;
 
 namespace IdentityServer.ResourcesValidation
 {
@@ -16,40 +17,28 @@ namespace IdentityServer.ResourcesValidation
         {
             try
             {
-                var clientData = await (
-                    from cl in _uor.Client.GetAll()
-                    join sp in _uor.ClientScope.GetAll().Include(i => i.ApiScope)
-                        on cl.Index equals sp.ClientIndex
-                    join sc in _uor.ClientSecret.GetAll()
-                        on cl.Index equals sc.ClientIndex
-                    join gt in _uor.ClientGrantType.GetAll()
-                        on cl.Index equals gt.ClientIndex
-                    select new
-                    {
-                        Client = cl,
-                        ApiScope = sp,
-                        ClientSecret = sc,
-                        ClientGrantType = gt
-                    }
-                )
-                .ToListAsync();
+                var client = await _uor.Client.Where(i => i.ClientId == clientId).FirstOrDefaultAsync();
 
-                if(!clientData.Any())
+                if(client == null)
                 {
                     return new Client();
                 }
 
-                var client = clientData.Select(i => i.Client).FirstOrDefault();
-                var apiScope = clientData.Select(i => i.ApiScope).Distinct().ToList();
-                var clientSecret = clientData.Select(i => i.ClientSecret).Distinct().ToList();  
-                var grantType = clientData.Select(i => i.ClientGrantType).Distinct().ToList();
+                var apiScopes = await (
+                        from apiScope in _uor.ApiScope.GetAll()
+                        join clientApiScope in _uor.ClientApiScope.GetAll()
+                            on apiScope.Index equals clientApiScope.ApiScopeIndex
+                        where clientApiScope.ClientIndex == client.Index
+                        select apiScope.Name
+                    )
+                    .ToArrayAsync();
 
                 var returnClient = new Client
                 {
-                    ClientId = client?.ClientId ?? clientId,
-                    AllowedScopes = apiScope?.Select(i => i.ApiScope.Name).ToList() ?? new List<string>(),
-                    ClientSecrets = clientSecret?.Select(i => new Secret(i.Secret.Sha256())).ToList() ?? null,
-                    AllowedGrantTypes = grantType?.Select(i => i.GrantType).ToList() ?? new List<string>(),
+                    ClientId = clientId,
+                    AllowedScopes = apiScopes,
+                    ClientSecrets = client.ClientSecrets.Select(i => new Secret(i.Sha256())).ToList(),
+                    AllowedGrantTypes =  GrantTypes.ResourceOwnerPassword,
                     AllowOfflineAccess = true,
                     AbsoluteRefreshTokenLifetime = Common.RefreshTokenLifeTime,
                     AccessTokenLifetime = Common.AccessTokenLifeTime,

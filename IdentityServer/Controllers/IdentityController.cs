@@ -9,6 +9,7 @@ using IdentityServer.Data.Requests;
 using IdentityServer.Features.Commands.Authenticate.Register;
 using IdentityServer.Features.Commands.Authenticate.Register.DataObjects;
 using IdentityServer.Helpers;
+using IdentityServer.Models.DomainClasses;
 using IdentityServer.Utilities.Helpers;
 using MediatR;
 using Newtonsoft.Json;
@@ -126,20 +127,34 @@ namespace IdentityServer.Controllers
                 {
                     return NotFound("User not found");
                 }
-                
+
                 var origin = request.Https ? _configuration["Application:UrlHttps"] : _configuration["Application:UrlHttp"];
+                var clientId = _configuration["Identity:ClientId"];
+
+                var client = await _uor.Client.Where(i => i.ClientId == clientId)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                var apiScopes = await (
+                    from clientApiScope in _uor.ClientApiScope.GetAll()
+                    join apiScope in _uor.ApiScope.GetAll()
+                        on clientApiScope.ApiScopeIndex equals apiScope.Index
+                    where clientApiScope.ClientIndex == client.Index
+                    select apiScope.Name
+                ).ToArrayAsync(cancellationToken);
                 
                 Console.WriteLine($"{funcName} client origin {origin}");
-                
-                var tokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest
+
+                var tokenRequest = new PasswordTokenRequest
                 {
                     Address = $"{origin}/connect/token",
-                    ClientId = request.ClientId,
-                    Scope = "offline_access " + request.ApiScope,
-                    ClientSecret = request.ClientSecret,
+                    ClientId = client?.ClientId,
+                    ClientSecret = client?.ClientSecrets.FirstOrDefault(),
+                    Scope = "offline_access " + apiScopes.FirstOrDefault(),
+                    // Scope = apiScopes.FirstOrDefault(),
                     UserName = request.UserName,
                     Password = request.Password,
-                }, cancellationToken: cancellationToken);
+                };
+                var tokenResponse = await _httpClient.RequestPasswordTokenAsync(tokenRequest, cancellationToken: cancellationToken);
                 
                 if (!string.IsNullOrEmpty(tokenResponse.Error))
                 {

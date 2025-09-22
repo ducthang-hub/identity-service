@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace IdentityServer.Models.DomainClasses
+﻿namespace IdentityServer.Models.DomainClasses
 {
-    public class ClientScope
+    public class ClientApiScope
     {
         public Guid ClientIndex { get; set; }
         public Client Client { get; set; }

@@ -13,18 +13,11 @@ namespace IdentityServer.Models.Configurations
             builder.HasKey(i => i.Index);
             builder.Property(i => i.Index).IsRequired();
 
-            //builder.HasData(
-            //    new Client
-            //    {
-            //        Index = Guid.NewGuid(),
-            //        ClientId = "ewb-student-web"
-            //    },
-            //    new Client
-            //    {
-            //        Index = Guid.NewGuid(),
-            //        ClientId = "ewb-teacher"
-            //    }
-            //);
+            builder.Property(i => i.ClientSecrets)
+                .HasColumnType("jsonb");
+            
+            builder.Property(i => i.ClientGrantTypes)
+                .HasColumnType("jsonb");
         }
     }
 }

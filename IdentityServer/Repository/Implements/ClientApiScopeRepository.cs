@@ -4,9 +4,9 @@ using IdentityServer.Repository.Interfaces;
 
 namespace IdentityServer.Repository.Implements
 {
-    public class ClientScopeRepository : GenericRepository<ClientScope>, IClientScopeRepository
+    public class ClientApiScopeRepository : GenericRepository<ClientApiScope>, IClientApiScopeRepository
     {
-        public ClientScopeRepository(DatabaseContext context) : base(context) { }
+        public ClientApiScopeRepository(DatabaseContext context) : base(context) { }
 
     }
 }

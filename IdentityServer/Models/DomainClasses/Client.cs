@@ -9,8 +9,8 @@ namespace IdentityServer.Models.DomainClasses
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Index { get; set; }
         public string ClientId { get; set; }
-        public List<ClientScope> ClientScopes { get; set; }
-        public List<ClientSecret> ClientSecrets { get; set; }
-        public List<ClientGrantType> ClientGrantTypes { get; set; }
+        public List<string> ClientSecrets { get; set; } = new();
+        public List<string> ClientGrantTypes { get; set; } = new();
+        public IEnumerable<ClientApiScope> ClientApiScopes { get; set; }
     }
 }
