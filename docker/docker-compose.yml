@@ -1,4 +1,4 @@
-version: 'v1.0'
+version: '3.9'
 
 services:
   identityservice:
@@ -24,9 +24,18 @@ services:
     env_file: ./.env
     ports:
       - 7228:5432
+    secrets:
+      - db_password
+      - db_username
     volumes:
       - pgdata:/var/lib/postgresql/data
       # - ../docker-mount/pgdata:/var/lib/postgresql/data # Mount host directory as a volume
+
+secrets:
+  db_password:
+    file: secrets/db_password.txt
+  db_username:
+    file: secrets/db_username.txt
 
 volumes:
   text:

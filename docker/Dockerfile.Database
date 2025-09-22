@@ -1,9 +1,9 @@
 FROM postgres:latest
 
 # Set environment variables (add your .env variables here)
-ENV POSTGRES_USER=marist
-ENV POSTGRES_PASSWORD=marist0103
-ENV POSTGRES_DB=identity-db
+# ENV POSTGRES_USER=marist
+# ENV POSTGRES_PASSWORD=marist0103
+# ENV POSTGRES_DB=identity-db
 
 # Expose the default PostgreSQL port
 EXPOSE 5432
