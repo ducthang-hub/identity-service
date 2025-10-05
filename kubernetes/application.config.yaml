@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata: 
-  name: identity-config
+  name: application-config
 data:
   url-https: "http://192.168.49.2:31194"
   url-http: "http://192.168.49.2:31658"

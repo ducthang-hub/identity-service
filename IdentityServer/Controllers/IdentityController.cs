@@ -9,10 +9,12 @@ using IdentityServer.Data.Requests;
 using IdentityServer.Features.Commands.Authenticate.Register;
 using IdentityServer.Features.Commands.Authenticate.Register.DataObjects;
 using IdentityServer.Helpers;
-using IdentityServer.Models.DomainClasses;
+using IdentityServer.Services;
 using IdentityServer.Utilities.Helpers;
 using MediatR;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 
 namespace IdentityServer.Controllers
 {
@@ -24,17 +26,20 @@ namespace IdentityServer.Controllers
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IMediator _mediator;
+        private readonly IdentityServerService _identityServer;
         public IdentityController(
                 IUnitOfRepository uor,
                 HttpClient httpClient,
                 IConfiguration configuration,
-                IMediator mediator
+                IMediator mediator,
+                IdentityServerService identityServer
             )
         {
             _uor = uor;
             _httpClient = httpClient;
             _configuration = configuration;
             _mediator = mediator;
+            _identityServer = identityServer;
         }
 
         [HttpPost("error")]
@@ -128,49 +133,42 @@ namespace IdentityServer.Controllers
                     return NotFound("User not found");
                 }
 
-                var origin = request.Https ? _configuration["Application:UrlHttps"] : _configuration["Application:UrlHttp"];
-                var clientId = _configuration["Identity:ClientId"];
+                var pipeline = new ResiliencePipelineBuilder<TokenResponse>()
+                    .AddRetry(new RetryStrategyOptions<TokenResponse>
+                    {
+                        ShouldHandle = new PredicateBuilder<TokenResponse>()
+                            .Handle<Exception>()
+                            .HandleResult(r => r.IsError),
+                        Delay = TimeSpan.FromSeconds(1),
+                        MaxRetryAttempts = 3,
+                        BackoffType = DelayBackoffType.Constant,
+                        OnRetry = agrs =>
+                        {
+                            Console.WriteLine($"Attempt {agrs.AttemptNumber} - {agrs.Outcome}");
+                            return ValueTask.CompletedTask;
+                        }
+                    })
+                    .AddTimeout(TimeSpan.FromSeconds(10))
+                    .Build();
 
-                var client = await _uor.Client.Where(i => i.ClientId == clientId)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                var apiScopes = await (
-                    from clientApiScope in _uor.ClientApiScope.GetAll()
-                    join apiScope in _uor.ApiScope.GetAll()
-                        on clientApiScope.ApiScopeIndex equals apiScope.Index
-                    where clientApiScope.ClientIndex == client.Index
-                    select apiScope.Name
-                ).ToArrayAsync(cancellationToken);
-                
-                Console.WriteLine($"{funcName} client origin {origin}");
-
-                var tokenRequest = new PasswordTokenRequest
+                var tokenResponse = await pipeline.ExecuteAsync(async token =>
                 {
-                    Address = $"{origin}/connect/token",
-                    ClientId = client?.ClientId,
-                    ClientSecret = client?.ClientSecrets.FirstOrDefault(),
-                    Scope = "offline_access " + apiScopes.FirstOrDefault(),
-                    // Scope = apiScopes.FirstOrDefault(),
-                    UserName = request.UserName,
-                    Password = request.Password,
-                };
-                var tokenResponse = await _httpClient.RequestPasswordTokenAsync(tokenRequest, cancellationToken: cancellationToken);
+                    var tokenResponse =
+                        await _identityServer.GetToken(user.UserName!, user.PasswordHash!, token);
+                    return tokenResponse;
+                }, cancellationToken);
                 
-                if (!string.IsNullOrEmpty(tokenResponse.Error))
+                if (!string.IsNullOrEmpty(tokenResponse.Error) || tokenResponse.HttpStatusCode != HttpStatusCode.OK)
                 {
-                    Console.WriteLine($"{funcName} Token Response Error: {tokenResponse.Error}");
-                    return BadRequest($"ErrorDescription: {tokenResponse.ErrorDescription}\nErrorType: {tokenResponse.ErrorType.ToString()}\nRawJson: {tokenResponse.Raw}");
+                    Console.WriteLine($"{funcName} Token Response Error: {tokenResponse.Error} - {tokenResponse.ErrorDescription}");
+                    return BadRequest();
                 }
                 
-                if (tokenResponse.HttpStatusCode != HttpStatusCode.OK) return BadRequest(tokenResponse);
-                var output = new TokenDto
+                return Ok(new TokenDto
                 {
                     AccessToken = tokenResponse.AccessToken,
                     RefreshToken = tokenResponse.RefreshToken,
-                };
-                
-                return Ok(output);
-
+                });
             }
             catch(Exception ex)
             {

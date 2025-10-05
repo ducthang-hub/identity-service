@@ -1,12 +1,10 @@
-version: '3.9'
-
 services:
   identityservice:
     # image: dducthang/identity-service:v1.4
-    image: dducthang/is:v1.5
+    image: dducthang/hecate:v1.0
     build:
       context: ../
-      dockerfile: docker/Dockerfile.IdentityService
+      dockerfile: docker/Dockerfile.Hecate
     env_file: ./.env
     ports:
       - 9002:443
@@ -17,25 +15,16 @@ services:
       - text:/app/Text
 
   database:
-    image: dducthang/test-isdb:v1.0
+    image: dducthang/hecate-db:v1.0
     build:
       context: ../
-      dockerfile: docker/Dockerfile.Database
+      dockerfile: docker/Dockerfile.HecateDb
     env_file: ./.env
     ports:
       - 7228:5432
-    secrets:
-      - db_password
-      - db_username
     volumes:
       - pgdata:/var/lib/postgresql/data
       # - ../docker-mount/pgdata:/var/lib/postgresql/data # Mount host directory as a volume
-
-secrets:
-  db_password:
-    file: secrets/db_password.txt
-  db_username:
-    file: secrets/db_username.txt
 
 volumes:
   text:

@@ -4,14 +4,19 @@ using IdentityServer.Models.Context;
 using IdentityServer.Models.DomainClasses;
 using IdentityServer.Repository;
 using IdentityServer.ResourcesValidation;
+using IdentityServer.Services;
 using IdentityServer.Services.DatabaseService;
+using IdentityServer.SettingOptions;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using Polly;
+using Polly.Retry;
 using static System.Net.WebRequestMethods;
 
 namespace IdentityServer.Extensions
@@ -29,6 +34,38 @@ namespace IdentityServer.Extensions
             _config = config;
         }
 
+        public void PollyConfiguration()
+        {
+            // _services.AddResiliencePipeline<HttpResponseMessage>("http-request-pipeline", pipelineBuilder =>
+            // {
+            //     pipelineBuilder
+            //         .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            //         {
+            //             ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+            //                 .Handle<HttpRequestException>()
+            //                 .HandleResult(r => !r.IsSuccessStatusCode),
+            //             Delay = TimeSpan.FromSeconds(1),
+            //             MaxRetryAttempts = 3,
+            //             BackoffType = DelayBackoffType.Constant
+            //         })
+            //         .AddTimeout(TimeSpan.FromSeconds(10));
+            // });
+        }
+
+        public void SettingOptionsConfiguration()
+        {
+            _services.AddOptions<ApplicationSettings>()
+                .BindConfiguration(ApplicationSettings.ConfigurationSection);
+            
+            _services.AddOptions<IdentityServerSettings>()
+                .BindConfiguration(IdentityServerSettings.ConfigurationSection);
+        }
+
+        public void HttpClientConfiguration()
+        {
+            _services.AddHttpClient<IdentityServerService>();
+        }
+        
         public void IdentityServerConfiguration()
         {
             _services.AddIdentity<User, IdentityRole>()

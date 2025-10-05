@@ -1,44 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
-  name: identity-deployment
+  name: hecate.identity
   labels:
     group: identity
 spec:
   replicas: 1
   selector:
     matchLabels:
-      label: identity-service-label
+      label: identity-service
   template:
     metadata:
       labels:
-        label: identity-service-label
+        label: identity-service
     spec:
       containers:
-        - name: identity-service
-          image: dducthang/identity-service:v1.2k
+        - name: hecate.identity
+          image: dducthang/hecate.identity:v1.0
           imagePullPolicy: Always
           env:
             - name: Application__UrlHttps
               valueFrom:
                 configMapKeyRef:
-                  name: identity-config
+                  name: application-config
                   key: url-https
             - name: Application__UrlHttp
               valueFrom:
                 configMapKeyRef:
-                  name: identity-config
+                  name: application-config
                   key: url-http
             - name: Database__ConnectionString
               valueFrom:
                 secretKeyRef:
                   name: identity-db-secret
                   key: connection-string
-          volumeMounts: 
-            - mountPath: /app/Text
-              name: text-volume
+      #     volumeMounts: 
+      #       - mountPath: /app/Text
+      #         name: text-volume
           
-      volumes:
-        - name: text-volume
-          persistentVolumeClaim: 
-            claimName: identity-pvc
+      # volumes:
+      #   - name: text-volume
+      #     persistentVolumeClaim: 
+      #       claimName: identity-pvc

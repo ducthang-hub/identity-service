@@ -18,6 +18,9 @@ serviceExtensions.DatabaseConfiguration();
 serviceExtensions.DIConfiguration();
 serviceExtensions.HostedServiceConfiguration();
 serviceExtensions.MediatorConfiguration();
+serviceExtensions.PollyConfiguration();
+serviceExtensions.SettingOptionsConfiguration();
+serviceExtensions.HttpClientConfiguration();
 
 var app = builder.Build();
 

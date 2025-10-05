@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "IdentityServer": {
+    "Hecate": {
       "commandName": "Project",
       "launchBrowser": false,
       "launchUrl": "swagger",
